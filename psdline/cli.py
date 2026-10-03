@@ -6,6 +6,8 @@
 ``demo``    在本地跑一遍完整流程（到站开门 → 间隙探测 → 发车 → 批量开门 →
             门区联动 → 故障置位与解除 → 序号回绕 → 控制周期 → 清扫），用于交付
             前的真实运行检查；
+``workshop-demo`` 跑一遍门区报修工单与备件全流程（开单预占 → 跨班领料 →
+            超期升级 → 关单解锁 → 废单核销 → 盘点 → 流水重建）；
 ``status``  打印当前状态快照；
 ``config``  打印生效配置；
 ``reset``   清掉落盘的平台计数。
@@ -182,6 +184,15 @@ def _cmd_reset(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_workshop_demo(args: argparse.Namespace) -> int:
+    """门区报修工单与备件全流程演示。"""
+
+    from .workshop.demo import run as run_workshop_demo
+
+    run_workshop_demo()
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """构造命令行解析器。"""
 
@@ -207,6 +218,9 @@ def build_parser() -> argparse.ArgumentParser:
     demo.add_argument("--dt", type=float, default=1.0, help="控制周期步长（秒）")
     demo.add_argument("--fast", action="store_true", help="使用可推进时钟，跳过真实等待")
     demo.set_defaults(func=_cmd_demo)
+
+    workshop_demo = sub.add_parser("workshop-demo", help="跑一遍工单与备件全流程")
+    workshop_demo.set_defaults(func=_cmd_workshop_demo)
 
     status = sub.add_parser("status", help="打印状态快照", parents=[common])
     status.set_defaults(func=_cmd_status)
